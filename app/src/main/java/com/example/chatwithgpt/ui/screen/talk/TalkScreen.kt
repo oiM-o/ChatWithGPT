@@ -56,6 +56,9 @@ fun TalkScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    //Roomを導入して新規トークルームを作れるようになったら変更するダミーデータ
+    val talkRooms = listOf("Room 1", "Room 2", "Room 3", "Room 4")
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -69,14 +72,20 @@ fun TalkScreen(
                     fontWeight = FontWeight.Bold
                     )
                 Divider()
-                NavigationDrawerItem(
-                    label = { Text(
-                        text = "Drawer Item",
-                        style = TextStyle(fontSize = 16.sp)
-                        ) },
-                    selected = false,
-                    onClick = { /*TODO*/ }
-                )
+                LazyColumn() {
+                    items(talkRooms) {room ->
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = room,
+                                    style = TextStyle(fontSize = 16.sp)
+                                )
+                            },
+                            selected = false,
+                            onClick = { /*TODO*/ }
+                        )
+                    }
+                }
                 // ...other drawer items
             }
         },
@@ -128,12 +137,16 @@ fun TalkScreen(
                         }
                     },
                     label = { Text(text = "Type your message...") },
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 )
             },
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        talkViewModel.createRoom("New Room")
+                     }
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "New_Talk")
                 }

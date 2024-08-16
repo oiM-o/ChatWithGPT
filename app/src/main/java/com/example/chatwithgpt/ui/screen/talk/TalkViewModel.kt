@@ -5,6 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithgpt.BuildConfig
+import com.example.chatwithgpt.data.database.AppDatabase
+import com.example.chatwithgpt.data.entity.MessageEntity
+import com.example.chatwithgpt.data.entity.RoomEntity
 import com.example.chatwithgpt.model.GptMessage
 import com.example.chatwithgpt.model.GptRequest
 import com.example.chatwithgpt.network.OpenAIApiService
@@ -15,10 +18,11 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.awaitResponse
 import retrofit2.converter.gson.GsonConverterFactory
-import io.github.cdimascio.dotenv.dotenv
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
 
-class TalkViewModel: ViewModel() {
+class TalkViewModel(application: Application) : AndroidViewModel(application) {
     private val _messages = MutableStateFlow<List<Pair<String, Boolean>>>(emptyList())
     val messages: StateFlow<List<Pair<String, Boolean>>> = _messages
 
@@ -34,6 +38,10 @@ class TalkViewModel: ViewModel() {
 
     // BuildConfig 経由で API キーを取得
     private val apiKey = BuildConfig.OPENAI_API_KEY
+
+    private val db = AppDatabase.getDatabase(application)
+    private val roomDao = db.roomDao()
+    private val messageDao = db.messageDao()
 
     fun addMessage(message: String, isUser: Boolean){
         _messages.value = _messages.value + (message to isUser)
@@ -68,6 +76,25 @@ class TalkViewModel: ViewModel() {
             } catch (e: Exception) {
                 addMessage("Failed to communicate with GPT: ${e.message}", isUser = false)
             }
+        }
+    }
+
+    fun createRoom(name: String) {
+        viewModelScope.launch {
+            val room = RoomEntity(name = name, createdAt = System.currentTimeMillis())
+            roomDao.insertRoom(room)
+        }
+    }
+
+    fun saveMessage(roomId: Int, message: String, isUser: Boolean) {
+        viewModelScope.launch {
+            val msg = MessageEntity(
+                roomId = roomId,
+                message = message,
+                isUser = isUser,
+                timeStamp = System.currentTimeMillis()
+            )
+            messageDao.insertMessage(msg)
         }
     }
 }
