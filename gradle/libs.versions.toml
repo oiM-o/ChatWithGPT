@@ -15,6 +15,7 @@ room-runtime = "2.6.1"
 room-ktx = "2.6.1"
 room-compiler = "2.6.1"
 uiDesktop = "1.6.8"
+runtimeLivedata = "1.6.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,6 +38,7 @@ squareup-retrofit2-converter-gson = { group = 'com.squareup.retrofit2', name = '
 room-runtime = { group = 'androidx.room', name = 'room-runtime', version.ref = 'room-runtime' }
 room-ktx = { group = 'androidx.room', name = 'room-ktx', version.ref = 'room-ktx' }
 room-compiler = { group = 'androidx.room', name = 'room-compiler', version.ref= 'room-compiler' }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

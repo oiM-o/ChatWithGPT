@@ -20,6 +20,8 @@ import retrofit2.awaitResponse
 import retrofit2.converter.gson.GsonConverterFactory
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 
 
 class TalkViewModel(application: Application) : AndroidViewModel(application) {
@@ -42,6 +44,12 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.getDatabase(application)
     private val roomDao = db.roomDao()
     private val messageDao = db.messageDao()
+
+    private val _currentRoom = MutableStateFlow<RoomEntity?>(null)
+    val currentRoom: StateFlow<RoomEntity?> = _currentRoom
+
+    // トークルームリストを取得するLiveData
+    val talkRooms: LiveData<List<RoomEntity>> = roomDao.getAllRooms().asLiveData()
 
     fun addMessage(message: String, isUser: Boolean){
         _messages.value = _messages.value + (message to isUser)
@@ -79,10 +87,24 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun createRoom(name: String) {
+    fun createRoom() {
         viewModelScope.launch {
-            val room = RoomEntity(name = name, createdAt = System.currentTimeMillis())
+            val currentRoomCount = roomDao.getRoomCount()
+            val newRoomName = "New Room ${ currentRoomCount + 1 } "
+            val room = RoomEntity(name = newRoomName, createdAt = System.currentTimeMillis())
+
             roomDao.insertRoom(room)
+            _currentRoom.value = room
+        }
+    }
+
+    fun switchRoom(room: RoomEntity) {
+        _currentRoom.value = room
+    }
+
+    fun deleteRoom(room: RoomEntity){
+        viewModelScope.launch {
+            roomDao.deleteRoom(room)
         }
     }
 

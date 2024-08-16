@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.squareup.retrofit2.converter.gson)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.androidx.runtime.livedata)
     kapt(libs.room.compiler) // Kapt を使用して Room のコンパイラを指定
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
